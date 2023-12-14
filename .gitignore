@@ -22,9 +22,15 @@ var/
 wheels/
 share/python-wheels/
 *.egg-info/
+.venv/
+logs/*
 .installed.cfg
 *.egg
 MANIFEST
+DICOM_IMAGES/*
+.vscode/
+OUT_DICOM_FAILED/*
+OUT_DICOM_SUCCESS/*
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
