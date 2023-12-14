@@ -1,25 +1,16 @@
 import logging.config
 import yaml
 import configparser
-import requests
-import os, sys
+import os
 import shutil
 import json
-from requests_toolbelt import MultipartEncoder
-import urllib3
-import mmap
-from requests_toolbelt.multipart import encoder
 import http.client
 import os.path
-import requests
 import os
-from tqdm import tqdm
-from tqdm.utils import CallbackIOWrapper
 import json
-import base64
 
 
-VERSION = "0.0.1"
+VERSION = "0.0.2"
 DICOM_FOLDER = ""
 client_id = ""
 client_secret = ""
