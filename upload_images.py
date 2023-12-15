@@ -1,16 +1,15 @@
-import logging.config
-import yaml
-import configparser
-import os
-import shutil
-import json
-import http.client
 import os.path
 import os
+import sys
 import json
+import configparser
+import shutil
+import http.client
+import yaml
+import logging.config
 
 
-VERSION = "0.0.2"
+VERSION = "0.0.3"
 DICOM_FOLDER = ""
 client_id = ""
 client_secret = ""
@@ -50,6 +49,10 @@ def send_dicom(token, fname):
             logging.info(data.decode("utf-8"))
             if res.status == 200:
                 return True
+            if res.status == 401:
+                # un authorized, token expired
+                logging.warning("401 (token expired?), exiting...")
+                sys.exit(0)
 
         return False
     except Exception as e:
@@ -58,12 +61,12 @@ def send_dicom(token, fname):
 
 
 def get_token():
-    logging.info("geting token...")
+    logging.info("getting token...")
     path = "/oauth2/v1/accesstoken?grant_type=client_credentials"
 
     try:
         conn = http.client.HTTPSConnection(API_BASEURL)
-        payload = "client_id=YvIA6rsdXIMSH8b0Leqpg2ldWuzDudtluSvApRHbpN5U1rHb&client_secret=DFckVLAbOaKvsX73ddzvNztSn0ekwVXHeNEuDdaTWRrcRZNVjyI4Qz38vtyc3GQM"
+        payload = "client_id=" + client_id + "&client_secret=" + client_secret
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
         conn.request("POST", path, payload, headers)
         res = conn.getresponse()
