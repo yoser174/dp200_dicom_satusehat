@@ -120,64 +120,75 @@ def main():
     logging.info(f"API_BASEURL [{API_BASEURL}]")
     logging.info(f"TOKEN_PATH [{TOKEN_PATH}]")
     logging.info(f"SEND_PATH [{SEND_PATH}]")
-    success, token = get_token(client_id, client_secret)
-    if success:
-        start_time = time.time()
-        # create an empty list to store the file names or paths
-        file_list = []
-        for root, dirs, files in os.walk(DICOM_FOLDER):
-            for file in files:
-                # get the full path of the file
-                full_fname = os.path.join(root, file)
-                # get the relative path of the file to the source folder
-                rel_path = os.path.relpath(full_fname, DICOM_FOLDER)
-                # append the relative path to the output folder
-                new_dest = os.path.join(OUT_TEMP, rel_path)
-                # create any intermediate directories if needed
-                os.makedirs(os.path.dirname(new_dest), exist_ok=True)
-                # move the file to the new destination
-                shutil.move(full_fname, new_dest) 
-                # append the file name or path to the list
-                file_list.append(new_dest)
-        logging.info(f"List of files: {file_list}")
-        delete_empty_folders(DICOM_FOLDER)
-        os.makedirs(os.path.dirname(DICOM_FOLDER), exist_ok=True)
-        if len(file_list) > 0:
-            # iterate over the files from the list
-            for file in file_list:
-                full_fname = file
-                logging.info(full_fname)
-                # get the relative path of the file to the source folder
-                rel_path = os.path.relpath(full_fname, OUT_TEMP)
-                # get the current time in seconds
-                current_time = time.time()
-                # subtract the current time from the start time to get the elapsed time
-                elapsed_time = current_time - start_time
-                # if the elapsed time is greater than 50 minutes, request a new token and update the start time
-                if elapsed_time > 50 * 60:
-                    success, token = get_token(client_id, client_secret)
-                    if success:
-                        start_time = time.time()
-                if send_dicom(token=token, fname=full_fname):
+    num_file = 0
+    for root, dirs, files in os.walk(DICOM_FOLDER):
+        for file in files:
+            num_file = num_file + 1
+    logging.info(f"Total number of files to send: {num_file}")
+    if num_file > 0:
+        success, token = get_token(client_id, client_secret)
+        if success:
+            start_time = time.time()
+            # create an empty list to store the file names or paths
+            file_list = []
+            for root, dirs, files in os.walk(DICOM_FOLDER):
+                for file in files:
+                    # get the full path of the file
+                    full_fname = os.path.join(root, file)
+                    # get the relative path of the file to the source folder
+                    rel_path = os.path.relpath(full_fname, DICOM_FOLDER)
                     # append the relative path to the output folder
-                    new_dest = os.path.join(OUT_SUCCESS, rel_path)
+                    new_dest = os.path.join(OUT_TEMP, rel_path)
                     # create any intermediate directories if needed
                     os.makedirs(os.path.dirname(new_dest), exist_ok=True)
                     # move the file to the new destination
-                    shutil.move(full_fname, new_dest)
-                else:
-                    # append the relative path to the output folder
-                    new_dest = os.path.join(OUT_FAILED, rel_path)
-                    # create any intermediate directories if needed
-                    os.makedirs(os.path.dirname(new_dest), exist_ok=True)
-                    # move the file to the new destination
-                    shutil.move(full_fname, new_dest)
-            delete_empty_folders(OUT_TEMP)
-            os.makedirs(os.path.dirname(OUT_TEMP), exist_ok=True)
-            delete_empty_folders(OUT_SUCCESS)
-            os.makedirs(os.path.dirname(OUT_SUCCESS), exist_ok=True)
-            delete_empty_folders(OUT_FAILED)
-            os.makedirs(os.path.dirname(OUT_FAILED), exist_ok=True)
+                    shutil.move(full_fname, new_dest) 
+                    # append the file name or path to the list
+                    file_list.append(new_dest)
+            logging.info(f"List of files: {file_list}")
+            # Get the list of files and subfolders in the folder
+            files = os.listdir(DICOM_FOLDER)
+            # Loop through each item
+            for f in files:
+                # Get the full path of the item
+                fullpath = os.path.join(DICOM_FOLDER, f)
+                # If the item is a subfolder, call the function recursively
+                if os.path.isdir(fullpath):
+                    delete_empty_folders(fullpath)
+            if len(file_list) > 0:
+                # iterate over the files from the list
+                for file in file_list:
+                    full_fname = file
+                    logging.info(full_fname)
+                    # get the relative path of the file to the source folder
+                    rel_path = os.path.relpath(full_fname, OUT_TEMP)
+                    # get the current time in seconds
+                    current_time = time.time()
+                    # subtract the current time from the start time to get the elapsed time
+                    elapsed_time = current_time - start_time
+                    # if the elapsed time is greater than 50 minutes, request a new token and update the start time
+                    if elapsed_time > 50 * 60:
+                        success, token = get_token(client_id, client_secret)
+                        if success:
+                            start_time = time.time()
+                    if send_dicom(token=token, fname=full_fname):
+                        # append the relative path to the output folder
+                        new_dest = os.path.join(OUT_SUCCESS, rel_path)
+                        # create any intermediate directories if needed
+                        os.makedirs(os.path.dirname(new_dest), exist_ok=True)
+                        # move the file to the new destination
+                        shutil.move(full_fname, new_dest)
+                    else:
+                        # append the relative path to the output folder
+                        new_dest = os.path.join(OUT_FAILED, rel_path)
+                        # create any intermediate directories if needed
+                        os.makedirs(os.path.dirname(new_dest), exist_ok=True)
+                        # move the file to the new destination
+                        shutil.move(full_fname, new_dest)
+                delete_empty_folders(OUT_TEMP)
+                os.makedirs(os.path.dirname(OUT_TEMP), exist_ok=True)
+                delete_empty_folders(OUT_FAILED)
+                os.makedirs(os.path.dirname(OUT_FAILED), exist_ok=True)
 
 if __name__ == "__main__":
     # read the logging configuration from the yaml file
