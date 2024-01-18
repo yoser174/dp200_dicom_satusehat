@@ -9,3 +9,7 @@
 
 2. install python 3.xx & install pyyaml
    `pip install pyyaml`
+
+
+**To only run the program:**
+Download "release" folder and run upload_images.exe. It will run in the background, check in the logs the completion.
