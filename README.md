@@ -12,11 +12,4 @@
 
 
 **To only run the program:**
-Download
-- upload_images.exe
-- upload_images.ini
-- upload_images.yaml
-- _internal folder
-- logs folder
-
-And run upload_images.exe. It will run in the background, check in the logs the completion.
+Download "release" folder and run upload_images.exe. It will run in the background, check in the logs the completion.
